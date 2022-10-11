@@ -1,9 +1,22 @@
+import { Component } from "react";
 import Task from "./task.js";
 
-const TaskList = ({data}) => {
-    const TodoList = data.map((item) => {
+export default class TaskList extends Component {
+
+  render(){
+    const { data, deleteItem, changeActiveStatus, activateChangeAction, updateItemText, handleInputChange, activeFilter } = this.props;
+    const TodoList = data.map((item) => {;
       return (
-        <Task data={item} key={item.text}/>
+        <Task 
+          data={item} 
+          key={item.id} 
+          deleteItem={deleteItem}
+          changeActiveStatus={changeActiveStatus}
+          activateChangeAction={activateChangeAction}
+          updateItemText={updateItemText}
+          handleInputChange={handleInputChange}
+          activeFilter={activeFilter}
+        />
       )
     });
     return (
@@ -12,5 +25,4 @@ const TaskList = ({data}) => {
       </ul>
     )
   }
-
-export default TaskList;
+}
