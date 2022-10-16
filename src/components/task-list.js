@@ -1,15 +1,40 @@
-import { Component } from "react";
-import Task from "./task.js";
+import PropTypes from 'prop-types'
+import { Component } from 'react'
+
+import Task from './task.js'
 
 export default class TaskList extends Component {
+  static defaultPropt = {
+    data: [],
+    activeFilter: 'all',
+  }
 
-  render(){
-    const { data, deleteItem, changeActiveStatus, activateChangeAction, updateItemText, handleInputChange, activeFilter } = this.props;
-    const TodoList = data.map((item) => {;
+  static propTypes = {
+    data: PropTypes.array.isRequired,
+    activeFilter: PropTypes.string.isRequired,
+
+    deleteItem: PropTypes.func.isRequired,
+    changeActiveStatus: PropTypes.func.isRequired,
+    activateChangeAction: PropTypes.func.isRequired,
+    updateItemText: PropTypes.func.isRequired,
+    handleInputChange: PropTypes.func.isRequired,
+  }
+
+  render() {
+    const {
+      data,
+      activeFilter,
+      deleteItem,
+      changeActiveStatus,
+      activateChangeAction,
+      updateItemText,
+      handleInputChange,
+    } = this.props
+    const TodoList = data.map((item) => {
       return (
-        <Task 
-          data={item} 
-          key={item.id} 
+        <Task
+          item={item}
+          key={item.id}
           deleteItem={deleteItem}
           changeActiveStatus={changeActiveStatus}
           activateChangeAction={activateChangeAction}
@@ -18,11 +43,7 @@ export default class TaskList extends Component {
           activeFilter={activeFilter}
         />
       )
-    });
-    return (
-      <ul className="todo-list">
-        { TodoList }
-      </ul>
-    )
+    })
+    return <ul className="todo-list">{TodoList}</ul>
   }
 }
