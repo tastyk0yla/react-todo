@@ -17,11 +17,7 @@ export default class App extends Component {
   }
 
   state = {
-    data: [
-      this.generateItemState('Completed task'),
-      this.generateItemState('Editing task'),
-      this.generateItemState('Active task'),
-    ],
+    data: [],
     filter: 'all',
   }
 
