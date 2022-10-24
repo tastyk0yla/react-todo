@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 
-import TasksFilter from './tasks-filter.js'
+import TasksFilter from '../TasksFilter'
 
 const Footer = (props) => {
   const { itemsLeft, clearCompleted, changeFilter, activeFilter } = props
@@ -8,7 +8,7 @@ const Footer = (props) => {
     <footer className="footer">
       <span className="todo-count">{itemsLeft} items left</span>
       <TasksFilter changeFilter={changeFilter} activeFilter={activeFilter} />
-      <button className="clear-completed" onClick={clearCompleted}>
+      <button aria-label="Clear completed tasks" className="clear-completed" onClick={clearCompleted}>
         Clear completed
       </button>
     </footer>

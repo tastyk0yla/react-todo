@@ -12,10 +12,11 @@ export default class NewTaskForm extends Component {
   }
 
   render() {
-    const { addNewItem, handleInputChange } = this.props
+    const { addNewItem, handleInputChange, mainTarget } = this.props
 
     return (
       <input
+        aria-label="New task"
         className="new-todo"
         placeholder="What needs to be done?"
         value={this.state.value}
@@ -24,13 +25,14 @@ export default class NewTaskForm extends Component {
         }}
         onKeyPress={(event) => {
           if (event.key !== 'Enter' || !event.target.value) return
+          if (!event.target.value) return
           this.setState((state) => {
             addNewItem(state.value)
             event.target.value = ''
             return { value: '' }
           })
         }}
-        autoFocus
+        autoFocus={mainTarget}
       />
     )
   }

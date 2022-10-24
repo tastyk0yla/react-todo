@@ -1,8 +1,8 @@
 import { Component } from 'react'
 
-import NewTaskForm from './new-task-form.js'
-import TaskList from './task-list.js'
-import Footer from './footer.js'
+import NewTaskForm from '../NewTaskForm'
+import TaskList from '../TaskList'
+import Footer from '../Footer'
 
 export default class App extends Component {
   generateItemState = (text) => {
@@ -19,6 +19,7 @@ export default class App extends Component {
   state = {
     data: [],
     filter: 'all',
+    mainTarget: true,
   }
 
   addNewItem = (text) => {
@@ -56,7 +57,7 @@ export default class App extends Component {
       const [idx, before, after] = this.getItems(id, data)
       const el = { ...data[idx], isChanging: !data[idx].isChanging }
       const newArr = [...before, el, ...after]
-      return { data: newArr }
+      return { data: newArr, mainTarget: false }
     })
   }
 
@@ -80,7 +81,7 @@ export default class App extends Component {
       const [idx, before, after] = this.getItems(id, data)
       const el = { ...data[idx], text: text, isChanging: false }
       const newArr = [...before, el, ...after]
-      return { data: newArr }
+      return { data: newArr, mainTarget: true }
     })
   }
 
@@ -98,7 +99,11 @@ export default class App extends Component {
       <section className="todoapp">
         <header className="header">
           <h1>todos</h1>
-          <NewTaskForm addNewItem={this.addNewItem} handleInputChange={this.handleInputChange} />
+          <NewTaskForm
+            addNewItem={this.addNewItem}
+            handleInputChange={this.handleInputChange}
+            mainTarget={this.state.mainTarget}
+          />
         </header>
         <section className="main">
           <TaskList

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { Component } from 'react'
 
-import Task from './task.js'
+import Task from '../Task'
 
 export default class TaskList extends Component {
   static defaultPropt = {
@@ -41,6 +41,7 @@ export default class TaskList extends Component {
           updateItemText={updateItemText}
           handleInputChange={handleInputChange}
           activeFilter={activeFilter}
+          id={item.id}
         />
       )
     })
