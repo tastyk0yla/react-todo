@@ -76,6 +76,10 @@ export default class App extends Component {
   }
 
   updateItemText = (id, text) => {
+    if (!text) {
+      this.deleteItem(id)
+      return
+    }
     this.setState(({ data }) => {
       console.log(text)
       const [idx, before, after] = this.getItems(id, data)
