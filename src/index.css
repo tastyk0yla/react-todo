@@ -37,6 +37,10 @@ body {
   font-weight: 300;
 }
 
+label {
+  display: flex;
+}
+
 :focus {
   outline: 0;
 }
