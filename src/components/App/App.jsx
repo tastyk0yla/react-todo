@@ -75,22 +75,23 @@ export default class App extends Component {
     })
   }
 
-  updateItemText = (id, text) => {
-    if (!text) {
+  updateItemText = (id, text, def) => {
+    console.log(text, def)
+    if (!text && !def) {
       this.deleteItem(id)
       return
     }
     this.setState(({ data }) => {
-      console.log(text)
       const [idx, before, after] = this.getItems(id, data)
-      const el = { ...data[idx], text: text, isChanging: false }
+      const el = { ...data[idx], text: text || def, isChanging: false }
       const newArr = [...before, el, ...after]
       return { data: newArr, mainTarget: true }
     })
   }
 
   handleInputChange = function (state, event) {
-    state.setState({ value: event.target.value })
+    const value = event.target.value
+    state.setState({ value })
   }
 
   changeFilter = (newFilter) => {

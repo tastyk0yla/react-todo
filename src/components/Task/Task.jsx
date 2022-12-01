@@ -27,6 +27,30 @@ export default class Task extends Component {
 
   state = {
     value: '',
+    timerTime: '00:00',
+  }
+
+  timerOn = () => {
+    this.timer = setInterval(() => {
+      let [mins, secs] = this.state.timerTime.split(':')
+      mins = Number(mins)
+      secs = Number(secs)
+      secs++
+      if (secs === 60) {
+        secs = 0
+        mins++
+      }
+      mins = String(mins)
+      secs = String(secs)
+      if (mins.length < 2) mins = `0${mins}`
+      if (secs.length < 2) secs = `0${secs}`
+      const time = [mins, secs].join(':')
+      this.setState({ timerTime: time })
+    }, 1000)
+  }
+
+  timerOff = () => {
+    clearInterval(this.timer)
   }
 
   render() {
@@ -39,6 +63,7 @@ export default class Task extends Component {
       handleInputChange,
       activeFilter,
     } = this.props
+
     const { text, timestamp, isCompleted, isChanging, id } = item
 
     let classStr = ''
@@ -57,12 +82,20 @@ export default class Task extends Component {
             type="checkbox"
             id={id}
             onChange={() => {
+              this.timerOff()
               changeActiveStatus(id)
             }}
           />
           <label htmlFor={id}>
-            <span className="description">{text}</span>
-            <span className="created">{`created ${formatDistanceToNow(timestamp, { includeSeconds: true })} ago`}</span>
+            <span className="title">{text}</span>
+            <span className="description">
+              <button className="icon icon-play" onClick={this.timerOn}></button>
+              <button className="icon icon-pause" onClick={this.timerOff}></button>
+              {` ${this.state.timerTime} `}
+            </span>
+            <span className="description">{`created ${formatDistanceToNow(timestamp, {
+              includeSeconds: true,
+            })} ago`}</span>
           </label>
           <button
             className="icon icon-edit"
@@ -94,7 +127,7 @@ export default class Task extends Component {
           }}
           onKeyPress={(event) => {
             if (event.key !== 'Enter') return
-            updateItemText(id, this.state.value)
+            updateItemText(id, this.state.value, event.target.defaultValue)
           }}
         />
       </li>
