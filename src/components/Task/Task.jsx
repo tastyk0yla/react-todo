@@ -31,15 +31,17 @@ export default class Task extends Component {
   }
 
   timerOn = () => {
+    if (this.timer) return
     this.timer = setInterval(() => {
       let [mins, secs] = this.state.timerTime.split(':')
       mins = Number(mins)
       secs = Number(secs)
-      secs++
-      if (secs === 60) {
-        secs = 0
-        mins++
+      if (mins + secs === 0) return
+      if (secs === 0) {
+        secs = 60
+        mins--
       }
+      secs--
       mins = String(mins)
       secs = String(secs)
       if (mins.length < 2) mins = `0${mins}`
@@ -51,6 +53,12 @@ export default class Task extends Component {
 
   timerOff = () => {
     clearInterval(this.timer)
+    this.timer = undefined
+  }
+
+  componentDidMount() {
+    const { text: value, originalTimer: timerTime } = this.props.item
+    this.setState({ value, timerTime })
   }
 
   render() {
@@ -89,8 +97,8 @@ export default class Task extends Component {
           <label htmlFor={id}>
             <span className="title">{text}</span>
             <span className="description">
-              <button className="icon icon-play" onClick={this.timerOn}></button>
-              <button className="icon icon-pause" onClick={this.timerOff}></button>
+              <button className="icon icon-play" onClick={this.timerOn} aria-label="Play" title="Play"></button>
+              <button className="icon icon-pause" onClick={this.timerOff} aria-label="Pause" title="Pause"></button>
               {` ${this.state.timerTime} `}
             </span>
             <span className="description">{`created ${formatDistanceToNow(timestamp, {
@@ -121,7 +129,7 @@ export default class Task extends Component {
           type="text"
           className="edit"
           id={`changeInput_${id}`}
-          defaultValue={text}
+          defaultValue={text.trim()}
           onChange={(event) => {
             handleInputChange(this, event)
           }}

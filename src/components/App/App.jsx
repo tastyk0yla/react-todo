@@ -5,10 +5,12 @@ import TaskList from '../TaskList'
 import Footer from '../Footer'
 
 export default class App extends Component {
-  generateItemState = (text) => {
+  generateItemState = (text, min, sec) => {
     const id = Math.random() * 10 * (Math.random() * 10) * 100
+    const originalTimer = [min, sec].join(':')
     return {
       text,
+      originalTimer,
       id,
       isCompleted: false,
       isChanging: false,
@@ -22,11 +24,13 @@ export default class App extends Component {
     mainTarget: true,
   }
 
-  addNewItem = (text) => {
+  addNewItem = (itemState) => {
+    const { value: text, min, sec } = itemState
+    if (!text || !min || !sec) return
     this.setState((state) => {
-      const newItemState = this.generateItemState(text)
-      const newArr = [newItemState, ...state.data]
-      return { data: newArr }
+      const newItemState = this.generateItemState(text, min, sec)
+      const newDataArray = [newItemState, ...state.data]
+      return { data: newDataArray }
     })
   }
 
@@ -76,7 +80,6 @@ export default class App extends Component {
   }
 
   updateItemText = (id, text, def) => {
-    console.log(text, def)
     if (!text && !def) {
       this.deleteItem(id)
       return
