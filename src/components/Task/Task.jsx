@@ -1,39 +1,16 @@
-import { React, Component } from 'react'
+import { React, useState, useEffect } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import PropTypes from 'prop-types'
 
-export default class Task extends Component {
-  static defaultProps = {
-    activeFilter: 'all',
-  }
+const Task = (props) => {
+  const [text, setText] = useState('')
+  const [timerTime, setTimerTime] = useState('00:00')
 
-  static propTypes = {
-    item: PropTypes.shape({
-      text: PropTypes.string,
-      id: PropTypes.number,
-      isCompleted: PropTypes.bool,
-      isChanging: PropTypes.bool,
-      timestamp: PropTypes.number,
-    }),
+  let timer
 
-    activeFilter: PropTypes.string.isRequired,
-
-    deleteItem: PropTypes.func.isRequired,
-    changeActiveStatus: PropTypes.func.isRequired,
-    activateChangeAction: PropTypes.func.isRequired,
-    updateItemText: PropTypes.func.isRequired,
-    handleInputChange: PropTypes.func.isRequired,
-  }
-
-  state = {
-    value: '',
-    timerTime: '00:00',
-  }
-
-  timerOn = () => {
-    if (this.timer) return
-    this.timer = setInterval(() => {
-      let [mins, secs] = this.state.timerTime.split(':')
+  const timerOn = () => {
+    if (timer) return
+    timer = setInterval(() => {
+      let [mins, secs] = timerTime.split(':')
       mins = Number(mins)
       secs = Number(secs)
       if (mins + secs === 0) return
@@ -47,100 +24,100 @@ export default class Task extends Component {
       if (mins.length < 2) mins = `0${mins}`
       if (secs.length < 2) secs = `0${secs}`
       const time = [mins, secs].join(':')
-      this.setState({ timerTime: time })
+      setTimerTime(time)
     }, 1000)
   }
 
-  timerOff = () => {
-    clearInterval(this.timer)
-    this.timer = undefined
+  const timerOff = () => {
+    clearInterval(timer)
+    timer = undefined
   }
 
-  componentDidMount() {
-    const { text: value, originalTimer: timerTime } = this.props.item
-    this.setState({ value, timerTime })
-  }
+  useEffect(() => {
+    const { text, originalTimer: timerTime } = props.item
+    setText(text)
+    setTimerTime(timerTime)
+  }, [])
 
-  render() {
-    const {
-      item,
-      deleteItem,
-      changeActiveStatus,
-      activateChangeAction,
-      updateItemText,
-      handleInputChange,
-      activeFilter,
-    } = this.props
+  const {
+    item,
+    deleteItem,
+    changeActiveStatus,
+    activateChangeAction,
+    updateItemText,
+    handleInputChange,
+    activeFilter,
+  } = props
 
-    const { text, timestamp, isCompleted, isChanging, id } = item
+  const { timestamp, isCompleted, isChanging, id } = item
 
-    let classStr = ''
-    if (isCompleted) classStr += ' completed'
-    if (isChanging) classStr += ' editing'
+  let classStr = ''
+  if (isCompleted) classStr += ' completed'
+  if (isChanging) classStr += ' editing'
 
-    const isFilterMatchingActive = activeFilter === 'active' && !isCompleted
-    const isFilterMatchingcompleted = activeFilter === 'completed' && isCompleted
+  const isFilterMatchingActive = activeFilter === 'active' && !isCompleted
+  const isFilterMatchingcompleted = activeFilter === 'completed' && isCompleted
 
-    const isFiltered = activeFilter === 'all' || isFilterMatchingActive || isFilterMatchingcompleted ? true : false
-    const element = (
-      <li className={classStr}>
-        <div className="view">
-          <input
-            className="toggle"
-            type="checkbox"
-            id={id}
-            onChange={() => {
-              this.timerOff()
-              changeActiveStatus(id)
-            }}
-          />
-          <label htmlFor={id}>
-            <span className="title">{text}</span>
-            <span className="description">
-              <button className="icon icon-play" onClick={this.timerOn} aria-label="Play" title="Play"></button>
-              <button className="icon icon-pause" onClick={this.timerOff} aria-label="Pause" title="Pause"></button>
-              {` ${this.state.timerTime} `}
-            </span>
-            <span className="description">{`created ${formatDistanceToNow(timestamp, {
-              includeSeconds: true,
-            })} ago`}</span>
-          </label>
-          <button
-            className="icon icon-edit"
-            aria-label="Edit"
-            title="edit"
-            onClick={() => {
-              this.setState({ isChanging: true })
-              activateChangeAction(id)
-            }}
-          ></button>
-          <button
-            aria-label="Delete"
-            title="delete"
-            className="icon icon-destroy"
-            onClick={() => {
-              deleteItem(id)
-            }}
-          ></button>
-        </div>
-        <label htmlFor={`changeInput_${id}`} style={{ padding: 0 }}></label>
+  const isFiltered = activeFilter === 'all' || isFilterMatchingActive || isFilterMatchingcompleted ? true : false
+  const element = (
+    <li className={classStr}>
+      <div className="view">
         <input
-          ref={(changeInput) => changeInput && changeInput.focus()}
-          type="text"
-          className="edit"
-          id={`changeInput_${id}`}
-          defaultValue={text.trim()}
-          onChange={(event) => {
-            handleInputChange(this, event)
-          }}
-          onKeyPress={(event) => {
-            if (event.key !== 'Enter') return
-            updateItemText(id, this.state.value, event.target.defaultValue)
+          className="toggle"
+          type="checkbox"
+          id={id}
+          onChange={() => {
+            timerOff()
+            changeActiveStatus(id)
           }}
         />
-      </li>
-    )
+        <label htmlFor={id}>
+          <span className="title">{text}</span>
+          <span className="description">
+            <button className="icon icon-play" onClick={timerOn} aria-label="Play" title="Play"></button>
+            <button className="icon icon-pause" onClick={timerOff} aria-label="Pause" title="Pause"></button>
+            {` ${timerTime} `}
+          </span>
+          <span className="description">{`created ${formatDistanceToNow(timestamp, {
+            includeSeconds: true,
+          })} ago`}</span>
+        </label>
+        <button
+          className="icon icon-edit"
+          aria-label="Edit"
+          title="edit"
+          onClick={() => {
+            activateChangeAction(id)
+          }}
+        ></button>
+        <button
+          aria-label="Delete"
+          title="delete"
+          className="icon icon-destroy"
+          onClick={() => {
+            deleteItem(id)
+          }}
+        ></button>
+      </div>
+      <label htmlFor={`changeInput_${id}`} style={{ padding: 0 }}></label>
+      <input
+        ref={(changeInput) => changeInput && changeInput.focus()}
+        type="text"
+        className="edit"
+        id={`changeInput_${id}`}
+        defaultValue={text.trim()}
+        onChange={(event) => {
+          handleInputChange(setText, event)
+        }}
+        onKeyPress={(event) => {
+          if (event.key !== 'Enter') return
+          updateItemText(id, text, event.target.defaultValue)
+        }}
+      />
+    </li>
+  )
 
-    return isFiltered ? element : null
-  }
+  return isFiltered ? element : null
 }
+
+export default Task

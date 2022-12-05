@@ -1,11 +1,15 @@
-import { Component } from 'react'
+import { useState } from 'react'
 
 import NewTaskForm from '../NewTaskForm'
 import TaskList from '../TaskList'
 import Footer from '../Footer'
 
-export default class App extends Component {
-  generateItemState = (text, min, sec) => {
+const App = () => {
+  const [list, setList] = useState([])
+  const [filter, setFilter] = useState('all')
+  const [mainTarget, setMainTarget] = useState(true)
+
+  const generateItemState = (text, min, sec) => {
     const id = Math.random() * 10 * (Math.random() * 10) * 100
     const originalTimer = [min, sec].join(':')
     return {
@@ -18,119 +22,106 @@ export default class App extends Component {
     }
   }
 
-  state = {
-    data: [],
-    filter: 'all',
-    mainTarget: true,
-  }
-
-  addNewItem = (itemState) => {
-    const { value: text, min, sec } = itemState
+  const addNewItem = (itemState) => {
+    const { text, min, sec } = itemState
     if (!text || !min || !sec) return
-    this.setState((state) => {
-      const newItemState = this.generateItemState(text, min, sec)
-      const newDataArray = [newItemState, ...state.data]
-      return { data: newDataArray }
+
+    setList((list) => {
+      const newItemState = generateItemState(text, min, sec)
+      return [newItemState, ...list]
     })
   }
 
-  getItems = (id, arr) => {
+  const getItems = (id, arr) => {
     const idx = arr.findIndex((item) => item.id === id)
     return [idx, arr.slice(0, idx), arr.slice(idx + 1)]
   }
 
-  deleteItem = (id) => {
-    this.setState(({ data }) => {
-      const [, before, after] = this.getItems(id, data)
-      const newArr = [...before, ...after]
-      return { data: newArr }
+  const deleteItem = (id) => {
+    setList((list) => {
+      const [, before, after] = getItems(id, list)
+      return [...before, ...after]
     })
   }
 
-  changeActiveStatus = (id) => {
-    this.setState(({ data }) => {
-      const [idx, before, after] = this.getItems(id, data)
-      const el = { ...data[idx], isCompleted: !data[idx].isCompleted }
-      const newArr = [...before, el, ...after]
-      return { data: newArr }
+  const changeActiveStatus = (id) => {
+    setList((list) => {
+      const [idx, before, after] = getItems(id, list)
+      const el = { ...list[idx], isCompleted: !list[idx].isCompleted }
+      return [...before, el, ...after]
     })
   }
 
-  activateChangeAction = (id) => {
-    this.setState(({ data }) => {
-      const [idx, before, after] = this.getItems(id, data)
-      const el = { ...data[idx], isChanging: !data[idx].isChanging }
-      const newArr = [...before, el, ...after]
-      return { data: newArr, mainTarget: false }
+  const activateChangeAction = (id) => {
+    setList((list) => {
+      const [idx, before, after] = getItems(id, list)
+      const el = { ...list[idx], isChanging: !list[idx].isChanging }
+      return [...before, el, ...after]
     })
+    setMainTarget(false)
   }
 
-  getItemsLeft = () => {
-    return this.state.data.reduce((itemsLeft, item) => {
+  const getItemsLeft = () => {
+    return list.reduce((itemsLeft, item) => {
       if (!item.isCompleted) itemsLeft++
       return itemsLeft
     }, 0)
   }
 
-  clearCompleted = () => {
-    const items = this.state.data.filter((item) => item.isCompleted)
+  const clearCompleted = () => {
+    const items = list.filter((item) => item.isCompleted)
     items.forEach((item) => {
-      this.deleteItem(item.id)
+      deleteItem(item.id)
     })
   }
 
-  updateItemText = (id, text, def) => {
+  const updateItemText = (id, text, def) => {
     if (!text && !def) {
-      this.deleteItem(id)
+      deleteItem(id)
       return
     }
-    this.setState(({ data }) => {
-      const [idx, before, after] = this.getItems(id, data)
-      const el = { ...data[idx], text: text || def, isChanging: false }
-      const newArr = [...before, el, ...after]
-      return { data: newArr, mainTarget: true }
+    setList((list) => {
+      const [idx, before, after] = getItems(id, list)
+      const el = { ...list[idx], text: text || def, isChanging: false }
+      return [...before, el, ...after]
     })
+    setMainTarget(true)
   }
 
-  handleInputChange = function (state, event) {
-    const value = event.target.value
-    state.setState({ value })
+  ///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  const handleInputChange = function (hook, event) {
+    hook(event.target.value)
   }
 
-  changeFilter = (newFilter) => {
-    this.setState({ filter: newFilter })
-    console.log(this.state)
+  const changeFilter = (newFilter) => {
+    setFilter(newFilter)
   }
 
-  render() {
-    return (
-      <section className="todoapp">
-        <header className="header">
-          <h1>todos</h1>
-          <NewTaskForm
-            addNewItem={this.addNewItem}
-            handleInputChange={this.handleInputChange}
-            mainTarget={this.state.mainTarget}
-          />
-        </header>
-        <section className="main">
-          <TaskList
-            data={this.state.data}
-            deleteItem={this.deleteItem}
-            changeActiveStatus={this.changeActiveStatus}
-            activateChangeAction={this.activateChangeAction}
-            updateItemText={this.updateItemText}
-            handleInputChange={this.handleInputChange}
-            activeFilter={this.state.filter}
-          />
-          <Footer
-            itemsLeft={this.getItemsLeft()}
-            clearCompleted={this.clearCompleted}
-            changeFilter={this.changeFilter}
-            activeFilter={this.state.filter}
-          />
-        </section>
+  return (
+    <section className="todoapp">
+      <header className="header">
+        <h1>todos</h1>
+        <NewTaskForm addNewItem={addNewItem} handleInputChange={handleInputChange} mainTarget={mainTarget} />
+      </header>
+      <section className="main">
+        <TaskList
+          list={list}
+          deleteItem={deleteItem}
+          changeActiveStatus={changeActiveStatus}
+          activateChangeAction={activateChangeAction}
+          updateItemText={updateItemText}
+          handleInputChange={handleInputChange}
+          activeFilter={filter}
+        />
+        <Footer
+          itemsLeft={getItemsLeft()}
+          clearCompleted={clearCompleted}
+          changeFilter={changeFilter}
+          activeFilter={filter}
+        />
       </section>
-    )
-  }
+    </section>
+  )
 }
+
+export default App

@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types'
-
 const TasksFilter = (props) => {
   const { changeFilter, activeFilter } = props
 
@@ -34,15 +32,6 @@ const TasksFilter = (props) => {
       </li>
     </ul>
   )
-}
-
-TasksFilter.defaultProps = {
-  activeFilter: 'all',
-}
-
-TasksFilter.propTypes = {
-  activeFilter: PropTypes.string,
-  changeFilter: PropTypes.func.isRequired,
 }
 
 export default TasksFilter
